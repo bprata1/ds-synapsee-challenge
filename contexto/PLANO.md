@@ -8,9 +8,9 @@ Vou construir um pipeline ponta a ponta que engloba a análise exploratória (pa
 
 ## 2. Etapas de execução e estimativa de tempo (Total planejado: 14 horas)
 
-* **Etapa 1: Entendimento e Análise Exploratória (EDA) (3h)** - Carregar os dados, avaliar nulos ocultos (ex: espaços em branco na variável de cobrança total), analisar o desbalanceamento da variável alvo e mapear as variáveis que mais influenciam o cancelamento.
-* **Etapa 2: Pipeline de Features (3h)** - Criar o pipeline de pré-processamento, realizando *encoding* de variáveis categóricas, escalonamento numérico e criação de atributos derivados (ex: ticket médio gasto) para facilitar o aprendizado dos modelos.
-* **Etapa 3: Modelagem Preditiva (4h)** - Treinar e comparar pelo menos duas abordagens (ex: Regressão Logística para *baseline*/interpretabilidade vs. XGBoost/Random Forest para performance). Foco em lidar com o desbalanceamento das classes.
+* **Etapa 1: Entendimento e Análise Exploratória (EDA) (3h)** - Carregar os dados, avaliar nulos ocultos, analisar o desbalanceamento da variável alvo e mapear as variáveis que mais influenciam o cancelamento.
+* **Etapa 2: Pipeline de Features (3h)** - Criar o pipeline de pré-processamento, realizando *encoding* de variáveis categóricas, escalonamento numérico e criação de atributos derivados para facilitar o aprendizado dos modelos.
+* **Etapa 3: Modelagem Preditiva (4h)** - Treinar e comparar pelo menos duas abordagens. Foco em lidar com o desbalanceamento das classes.
 * **Etapa 4: Lógica do Score de Risco (2h)** - Extrair as probabilidades contínuas do modelo escolhido (`predict_proba`) e calibrá-las para criar uma regra matemática robusta e de fácil interpretação para o negócio (Score de Risco de 0 a 100).
 * **Etapa 5: Plataforma de Inferência e Relatório (2h)** - Desenvolver e testar a interface no Streamlit, garantindo que o upload funcione corretamente, e redigir o `draft-relatorio.md` consolidando as lições aprendidas e trade-offs.
 

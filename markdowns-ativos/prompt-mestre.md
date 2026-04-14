@@ -4,6 +4,8 @@
 
 O desafio consiste em processar a base "Telco Customer Churn" (Kaggle) para construir um pipeline analítico ponta a ponta. O objetivo é prever a probabilidade de cancelamento de serviços (Churn) com base no perfil do cliente, serviços contratados e histórico de faturamento, além de derivar uma lógica matemática coerente para um "Score de Risco" (escala contínua de 0 a 100).
 
+O detalhamento granular das etapas, estimativas de tempo e testes de aceitação deste projeto estão definidos no arquivo `contexto/PLANO.md`, que atua como o cronograma oficial da entrega.
+
 ## 2. Escopo de Entregas Obrigatórias
 
 O projeto deve estritamente conter as seguintes entregas:

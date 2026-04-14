@@ -8,6 +8,7 @@ description: Acione obrigatoriamente esta regra de formatação ao executar o "G
 O arquivo `markdowns-ativos/dicionario-features.md` é o mapa vivo (mutável) do projeto. Ele registra o "COMO" e "POR QUÊ" uma variável existe.
 
 ## Regras Estritas de Edição
+
 1. **Mutabilidade (Sobrescrita Permitida):** Se a lógica matemática de uma feature mudar durante o projeto, você DEVE alterar a definição dela no dicionário para refletir a realidade atual. Não crie duplicatas.
 2. **Inclusão Dinâmica:** Adicione novos blocos apenas quando novas variáveis analíticas, features preditivas ou scores forem criados.
 3. **Campos Obrigatórios por Variável:**

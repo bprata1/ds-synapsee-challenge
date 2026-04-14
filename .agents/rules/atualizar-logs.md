@@ -8,6 +8,7 @@ description: Acione obrigatoriamente esta regra de formatação ao executar o "G
 O arquivo `markdowns-ativos/logs.md` é a fita de gravação (imutável) do projeto. Ele registra o "O QUÊ" e "QUANDO" aconteceu.
 
 ## Regras Estritas de Edição
+
 1. **Append-Only:** Nunca apague ou altere um registro anterior. Insira novos blocos sempre ao final do arquivo.
 2. **Concisão Extrema:** Não escreva prosa. Use estilo telegráfico.
 3. **Estrutura Obrigatória do Bloco:**

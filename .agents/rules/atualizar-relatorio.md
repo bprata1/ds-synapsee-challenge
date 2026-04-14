@@ -8,6 +8,7 @@ description: Acione obrigatoriamente esta regra de formatação ao executar o "G
 O arquivo `markdowns-ativos/draft-relatorio.md` é a base da sua defesa técnica ao vivo. Ele deve documentar o raciocínio por trás das escolhas.
 
 ## Regras de Registro
+
 1. **Foco no Raciocínio:** Não registre apenas o código; registre as alternativas que foram descartadas e o motivo da escolha atual.
 2. **Formato Append-Only:** Adicione novos blocos ao final do arquivo, mantendo o histórico de evolução do projeto.
 3. **Estrutura de Bloco Obrigatória:**

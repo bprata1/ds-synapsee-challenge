@@ -8,134 +8,169 @@
 
 * **Descrição:** ID único de identificação do cliente.
 * **Origem/Fonte:** Base bruta (Kaggle - Telco Customer Churn).
-* **Matemática/Transformação:** Nenhuma. Geralmente descartada na modelagem por não ter poder preditivo.
-* **Status:** Raw
+* **Matemática/Transformação:** Descartada, pois não agrega poder preditivo.
+* **Status:** Dropada
 
 ## gender
 
 * **Descrição:** Gênero do cliente (Masculino ou Feminino).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Male=1, Female=0
+* **Status:** Processed
 
 ## SeniorCitizen
 
 * **Descrição:** Indica se o cliente é idoso/aposentado (1 para sim, 0 para não).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Já contida no formato 0/1 originalmente. Manter inalterada.
+* **Status:** Processed
 
 ## Partner
 
 * **Descrição:** Indica se o cliente possui um parceiro/cônjuge (Yes, No).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0
+* **Status:** Processed
 
 ## Dependents
 
 * **Descrição:** Indica se o cliente possui dependentes (Yes, No).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0
+* **Status:** Processed
 
 ## tenure
 
 * **Descrição:** Número de meses que o cliente permaneceu na empresa (Tempo de vida útil).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Manter inalterada. Escalonamento ocorrerá na própria pipeline de modelagem da Etapa 3, se modelo exigir.
+* **Status:** Processed
 
 ## PhoneService
 
 * **Descrição:** Indica se o cliente possui serviço de telefonia (Yes, No).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0
+* **Status:** Processed
 
 ## MultipleLines
 
 * **Descrição:** Indica se o cliente possui múltiplas linhas telefônicas (Yes, No, No phone service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No phone service=0. (A ausência de serviço é semanticamente igual a não ter múltiplas linhas).
+* **Status:** Processed
 
 ## InternetService
 
 * **Descrição:** Provedor de serviço de internet do cliente (DSL, Fiber optic, No).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** One-Hot Encoding com `drop_first=True`. Original é dropada.
+* **Status:** Dropada
+
+## InternetService_Fiber optic
+
+* **Descrição:** Dummy para clientes que têm serviço de internet por fibra óptica.
+* **Origem/Fonte:** Derivada de InternetService, gerada via OHE.
+* **Matemática/Transformação:** Dummy. O baseline oculto é InternetService_DSL.
+* **Status:** Ativa
+
+## InternetService_No
+
+* **Descrição:** Dummy para clientes sem serviço de internet.
+* **Origem/Fonte:** Derivada de InternetService, gerada via OHE.
+* **Matemática/Transformação:** Dummy. O baseline oculto é InternetService_DSL.
+* **Status:** Ativa
 
 ## OnlineSecurity
 
 * **Descrição:** Indica se o cliente possui segurança online adicional contratada (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## OnlineBackup
 
 * **Descrição:** Indica se o cliente possui serviço de backup online contratado (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## DeviceProtection
 
 * **Descrição:** Indica se o cliente possui plano de proteção para dispositivos (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## TechSupport
 
 * **Descrição:** Indica se o cliente possui suporte técnico (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## StreamingTV
 
 * **Descrição:** Indica se o cliente utiliza serviço de streaming de TV da operadora (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## StreamingMovies
 
 * **Descrição:** Indica se o cliente utiliza serviço de streaming de filmes da operadora (Yes, No, No internet service).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0, No internet service=0.
+* **Status:** Processed
 
 ## Contract
 
 * **Descrição:** Tipo de termo de contrato do cliente (Month-to-month, One year, Two year).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Tratamento Ordinal. Mapeado para Month-to-month=0, One year=1, Two year=2 em virtude da queda monotônica observada no churn.
+* **Status:** Processed
 
 ## PaperlessBilling
 
 * **Descrição:** Indica se o cliente optou por faturamento sem papel/digital (Yes, No).
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0
+* **Status:** Processed
 
 ## PaymentMethod
 
-* **Descrição:** Método de pagamento escolhido pelo cliente (Electronic check, Mailed check, Bank transfer (automatic), Credit card (automatic)).
+* **Descrição:** Método de pagamento escolhido pelo cliente.
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** One-Hot Encoding com `drop_first=True`. Variável original dropada.
+* **Status:** Dropada
+
+## PaymentMethod_Credit card (automatic)
+
+* **Descrição:** Dummy de pagamento via cartão de crédito.
+* **Origem/Fonte:** Derivada de PaymentMethod via OHE.
+* **Matemática/Transformação:** Dummy. O baseline oculto é Bank transfer (automatic).
+* **Status:** Ativa
+
+## PaymentMethod_Electronic check
+
+* **Descrição:** Dummy de pagamento via electronic check (perfil com maior risco de churn da ED A).
+* **Origem/Fonte:** Derivada de PaymentMethod via OHE.
+* **Matemática/Transformação:** Dummy. O baseline oculto é Bank transfer (automatic).
+* **Status:** Ativa
+
+## PaymentMethod_Mailed check
+
+* **Descrição:** Dummy de pagamento via mailed check.
+* **Origem/Fonte:** Derivada de PaymentMethod via OHE.
+* **Matemática/Transformação:** Dummy. O baseline oculto é Bank transfer (automatic).
+* **Status:** Ativa
 
 ## MonthlyCharges
 
 * **Descrição:** O valor cobrado mensalmente do cliente.
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mantida inalterada. O escalonamento acontecerá internamente na modelagem via pipeline scikit-learn.
+* **Status:** Processed
 
 ## TotalCharges
 
@@ -151,9 +186,16 @@
 * **Fórmula/Filtro:** `TicketMedio = TotalCharges / tenure` quando `tenure > 0`; `0` quando `tenure == 0` (clientes recém-chegados sem histórico de gasto).
 * **Status:** Ativa
 
+## NumServicos
+
+* **Descrição:** Quantificador de 'ancoragem' à provedora de internet. É a soma de todos os serviços ativados para aquele cliente.
+* **Origem/Fonte:** Feature derivada (Etapa 2 - Pipeline de Features).
+* **Fórmula/Filtro:** Soma das colunas binárias já mapeadas para 0 e 1: `OnlineSecurity`, `OnlineBackup`, `DeviceProtection`, `TechSupport`, `StreamingTV`, `StreamingMovies`, `MultipleLines` e `PhoneService`.
+* **Status:** Ativa
+
 ## Churn (TARGET)
 
 * **Descrição:** Indica se o cliente cancelou o serviço / deu churn no último mês (Yes or No). Variável alvo preditiva.
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Matemática/Transformação:** Mapeada para Yes=1, No=0.
+* **Status:** Processed

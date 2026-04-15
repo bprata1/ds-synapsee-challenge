@@ -23,3 +23,7 @@
   * **Alteração:** (1) Notebook reconstruído via `nbformat` (integridade JSON garantida). (2) TotalCharges: 11 espaços em branco imputados com 0. (3) Criada feature `TicketMedio = TotalCharges / tenure` (0 quando tenure=0). (4) Dropada `TotalCharges` original. (5) Decisões registradas no `draft-relatorio.md`.
   * **Descrição:** Consolidação final da Etapa 1. Transformações aprovadas pelo usuário no Ponto de Controle. Estratégia de balanceamento (`class_weight='balanced'`) registrada para uso na Etapa 3.
 
+* **[2026-04-15 06:55] - Etapa 2: Pipeline de Features e Pré-processamento**
+  * **Dataframe(s) Ativo(s):** `df_raw` | Shape: `(7043, 21)` → `df_processed` | Shape: `(7043, 24)`
+  * **Alteração:** (1) Criada e executada função `preprocess_features` no notebook 02. (2) Imputação e TicketMedio reaplicados. (3) Features binárias mapeadas para 0/1, colapsando 'No internet service'/'No phone service' para 0. (4) `InternetService` e `PaymentMethod` convertidas via One-Hot Encoding (`drop_first=True`). (5) `Contract` convertida ordinalmente (0-2). (6) `customerID` dropada. (7) Criada feature `NumServicos` (soma das 8 binárias de serviço). (8) Dataset final salvo em `data/processed/telco_churn_features.csv`.
+  * **Descrição:** Pipeline consolidado em função única pensando no deploy (Streamlit consumirá a base crua futuramente). DataFrame exportado pronto para a Etapa 3 (sem escalonamento, que será delegado aos pipelines do scikit-learn).

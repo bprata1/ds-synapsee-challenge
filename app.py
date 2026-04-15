@@ -93,7 +93,7 @@ if arquivo_csv is not None:
         df_resultado = predict_and_score_app(df_upload, modelo)
 
     # ============================================================
-    # KPIs EXECUTIVOS
+    # KPIs EXECUTIVOS (base completa do CSV)
     # ============================================================
     st.divider()
     st.subheader("2. Visao Executiva")
@@ -110,18 +110,30 @@ if arquivo_csv is not None:
     col4.metric("Score Medio", f"{score_medio:.0f}/100")
 
     # ============================================================
-    # TABELA DE ACAO
+    # TABELA DE ACAO (somente base ativa — fila de retencao)
+    # A equipe de retencao nao pode ligar para quem ja cancelou.
+    # Filtramos Churn==1 APENAS aqui, pois esta tabela eh a fila
+    # de prioridade operacional. KPIs e demais secoes usam a base
+    # completa para visao gerencial.
     # ============================================================
     st.divider()
-    st.subheader("3. Tabela de Acao (Ordenada por Risco)")
+    st.subheader("3. Tabela de Acao (Fila de Retencao — Base Ativa)")
+
+    if "Churn" in df_resultado.columns:
+        df_ativos = df_resultado[df_resultado["Churn"] != 1].copy()
+        qtd_excluidos = len(df_resultado) - len(df_ativos)
+        if qtd_excluidos > 0:
+            st.caption(
+                f"📌 {qtd_excluidos} ex-clientes (Churn consolidado) "
+                f"foram ocultados desta fila de retencao."
+            )
+    else:
+        df_ativos = df_resultado.copy()
 
     # Colunas de exibicao para a tabela principal
     colunas_exibicao = ["customerID", "Risk_Score", "Risk_Tier", "Churn_Predicted"]
-    # Adicionar Churn real se existir na base
-    if "Churn" in df_resultado.columns:
-        colunas_exibicao.append("Churn")
 
-    df_tabela = df_resultado[colunas_exibicao].sort_values(
+    df_tabela = df_ativos[colunas_exibicao].sort_values(
         "Risk_Score", ascending=False
     )
 

@@ -42,3 +42,8 @@
   * **Dataframe(s) Ativo(s):** Nenhum novo DataFrame persistido (inferência ocorre em runtime).
   * **Alteração:** (1) Criado `src/inference_app.py` com `predict_and_score_app` preservando customerID + `validate_columns` para robustez. (2) Criado `app.py` (Streamlit MVP): upload CSV, validação de sanidade, KPIs executivos, tabela de ação ordenada, filtro por Tier + download CSV, seletor de cliente na sidebar. (3) Gerado `data/raw/sample_upload_batch.csv` (50 linhas) para testes. (4) Testado pipeline end-to-end com sample batch — OK.
   * **Descrição:** Interface funcional pronta para apresentação. O app consome o modelo congelado `models/campeao.joblib` e executa o pipeline completo (limpeza → predição → score → tiers) sobre qualquer CSV bruto no formato Telco.
+
+* **[2026-04-15 12:20] - Ajuste Operacional: Filtro de Base Ativa + README**
+  * **Dataframe(s) Ativo(s):** `df_ativos` (runtime — derivado de `df_resultado` filtrando `Churn != 1`).
+  * **Alteração:** (1) Implementado filtro de regra de negócio no `app.py`: KPIs e Tabela de Ação agora excluem ex-clientes (Churn==1) da fila de retenção. (2) Caption informativo exibe quantos ex-clientes foram ocultados. (3) README enriquecido com seção "Stack Tecnológico" e guia de execução do Streamlit (comando + sample batch). (4) Status atualizado para "Projeto Finalizado" e milestone da Etapa 5 adicionado.
+  * **Descrição:** Correção de miopia operacional: colocar ex-clientes numa fila de discagem de retenção gera atrito e desperdício de OPEX. O filtro garante que 100% do orçamento de marketing seja direcionado à base ativa.

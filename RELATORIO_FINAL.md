@@ -21,6 +21,7 @@ O `PLANO.md` entregue antes do código foi essencial para definir os SLAs intern
 ### 1.2 O Básico Bem Feito Venceu a Complexidade
 
 A Logistic Regression (C=0.01, `class_weight='balanced'`) superou a Random Forest em todos os critérios que importam para produção:
+
 - **Generalização:** Gap de 1.5pp vs 18pp da RF.
 - **Recall:** 78% vs 65% — 13pp a mais de churners capturados.
 - **Interpretabilidade:** Coeficientes traduzíveis diretamente em narrativa de negócio.
@@ -54,6 +55,7 @@ A transformação `predict_proba × 100` foi deliberadamente simples. A pergunta
 ### 1.6 Robustez no Deploy
 
 Três camadas de proteção no Streamlit garantem que a aplicação não "crasha" na apresentação:
+
 1. **Validação de schema** (`validate_columns`): Detecta colunas faltantes antes de qualquer processamento.
 2. **Robustez OHE**: Garante que todas as colunas dummy esperadas existam mesmo em batches parciais (ex: CSV só com clientes DSL).
 3. **Filtro de base ativa**: A Tabela de Ação exclui ex-clientes (Churn=1) da fila de retenção — bug de regra de negócio detectado e corrigido durante teste E2E.
@@ -65,6 +67,7 @@ Três camadas de proteção no Streamlit garantem que a aplicação não "crasha
 ### 2.1 Random Forest: Promessa vs Realidade
 
 A RF teve Macro F1 ligeiramente superior (+1.3pp no teste), mas:
+
 - **Overfitting severo:** Gap de 18pp entre treino e teste (SLA: ≤10pp). As 200 árvores "decoraram" os padrões do treino.
 - **Recall insuficiente:** 65% (SLA: ≥70%). Para cada 100 churners reais, a RF deixa 35 escaparem.
 
@@ -79,6 +82,7 @@ Ainda assim, uma Precision acima de 60% seria operacionalmente mais confortável
 ### 2.3 Interface sem Gráficos de Distribuição
 
 O MVP do Streamlit focou em tabelas e métricas, sem incluir visualizações como:
+
 - Histograma da distribuição de scores na base enviada.
 - Gráfico de barras comparando Tiers.
 - Gauge visual do score individual na sidebar.
@@ -104,6 +108,7 @@ A decisão foi funcional (entregar ação > entregar estética), mas reconheço 
 ### 3.3 Validação Temporal
 
 O split atual é aleatório estratificado. Em produção real, o churn tem dinâmica temporal — um modelo treinado em dados de janeiro pode performar diferente em julho. Com mais dados:
+
 - **Walk-forward validation:** Treinar em meses anteriores, testar no mês seguinte. Simula a realidade operacional.
 - **Monitoramento de drift:** Implementar alertas quando a distribuição de scores mudar significativamente entre batches (Kolmogorov-Smirnov sobre a distribuição de `Risk_Score`).
 
@@ -114,6 +119,7 @@ O split atual é aleatório estratificado. Em produção real, o churn tem dinâ
 ### 4.1 Dados Comportamentais
 
 A base Telco é estática — um snapshot. Com dados transacionais:
+
 - **Frequência de chamados ao suporte:** Clientes que ligam repetidamente estão mais propensos a cancelar.
 - **Histórico de downgrades:** Quem já reduziu o plano está sinalizando insatisfação antes do cancelamento.
 - **Padrões de uso:** Volume de dados consumido, minutos de ligação — queda de uso precede o churn.
@@ -127,6 +133,7 @@ A base Telco é estática — um snapshot. Com dados transacionais:
 ### 4.3 Série Temporal por Cliente
 
 Com múltiplos snapshots mensais (o dataset tem apenas um), seria possível:
+
 - Construir **curvas de sobrevivência** (Kaplan-Meier, Cox Proportional Hazards) para prever *quando* o churn ocorrerá, não apenas *se*.
 - Detectar **trajetórias de risco**: clientes cujo score sobe consistentemente mês a mês vs aqueles com score estável.
 
@@ -137,6 +144,7 @@ Com múltiplos snapshots mensais (o dataset tem apenas um), seria possível:
 ### 5.1 Calibração Econômica dos Tiers
 
 Os limiares 30/70 foram definidos heuristicamente. Com dados reais de:
+
 - **Custo médio de aquisição de cliente (CAC)**
 - **Lifetime Value (LTV) por segmento**
 - **Custo por ligação de retenção**
@@ -146,12 +154,14 @@ Os limiares 30/70 foram definidos heuristicamente. Com dados reais de:
 ### 5.2 Prescriptive Analytics
 
 O sistema atual é **preditivo** (quem vai cancelar?). Com contexto de negócio, evoluiria para **prescritivo**:
+
 - *"Cliente X tem 85% de chance de churn. A causa mais provável é contrato mensal + fibra sem suporte técnico. Ação recomendada: oferecer migração para contrato anual com 3 meses grátis de TechSupport."*
 - Cada ação teria um **ROI estimado** baseado no LTV preservado vs custo da oferta.
 
 ### 5.3 A/B Testing do Modelo
 
 Antes de escalar para toda a base, rodar um teste controlado:
+
 - **Grupo de tratamento:** Clientes de Alto Risco recebem ligação proativa.
 - **Grupo de controle:** Clientes de Alto Risco não são contactados.
 - Medir a **redução real de churn** atribuível ao modelo — o único número que justifica o investimento em Data Science vs a intuição do gerente.

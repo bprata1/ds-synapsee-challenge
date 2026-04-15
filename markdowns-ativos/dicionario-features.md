@@ -141,8 +141,15 @@
 
 * **Descrição:** O valor total acumulado cobrado do cliente ao longo de todo o contrato.
 * **Origem/Fonte:** Base bruta.
-* **Matemática/Transformação:** [A definir na etapa de features]
-* **Status:** Raw
+* **Fórmula/Filtro:** 11 registros com espaço em branco (tenure=0) imputados com 0 antes do drop.
+* **Status:** Dropada — Substituída pela feature derivada `TicketMedio` para mitigar multicolinearidade com `tenure` (correlação ~0.83).
+
+## TicketMedio
+
+* **Descrição:** Gasto médio mensal real do cliente ao longo de sua permanência. Representa o valor médio por mês de contrato efetivamente cobrado.
+* **Origem/Fonte:** Feature derivada (Etapa 1 — EDA).
+* **Fórmula/Filtro:** `TicketMedio = TotalCharges / tenure` quando `tenure > 0`; `0` quando `tenure == 0` (clientes recém-chegados sem histórico de gasto).
+* **Status:** Ativa
 
 ## Churn (TARGET)
 

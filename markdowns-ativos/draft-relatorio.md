@@ -199,3 +199,17 @@ Varredura sistêmica executada em **100% das colunas** (21 variáveis) para demo
 * **Contexto:** Após as transformações, havia espaço para derivar valor a partir do engajamento do cliente com o portfólio.
 * **Decisão Final:** ✅ Criar a variável `NumServicos`, calculada pela soma das 8 flags binárias de serviços (Net e Telefone).
 * **Impacto Esperado:** Captura linearmente o nível de "ancoragem" do cliente. Quanto maior a pontuação, maior o custo de mudança do cliente, fornecendo à modelagem uma representação clara da aderência aos produtos da operadora.
+
+---
+
+### Storytelling de Features (Etapa 2)
+
+Durante o pré-processamento, criamos duas novas variáveis que vão muito além do aspecto matemático — elas traduzem o comportamento financeiro e de engajamento do cliente para a linguagem de negócios:
+
+1. **`TicketMedio` (O Valor Real do Cliente):**
+   A base original trazia apenas o gasto do último mês (`MonthlyCharges`) e o gasto total acumulado histórico (`TotalCharges`). O problema é que o gasto acumulado mascara a realidade: um cliente antigo com um plano barato pode ter o mesmo gasto acumulado que um cliente muito recente com um plano caríssimo.
+   * **A Solução:** Criamos o `TicketMedio` (`TotalCharges / tenure`). Ele responde à pergunta: *"Quanto, em média, esse cliente tirou do bolso por mês desde que entrou?"*. Se o `MonthlyCharges` é muito diferente do `TicketMedio`, sabemos que o cliente sofreu *upsell* (comprou mais coisas) ou *downsell* (cancelou serviços) ao longo do tempo.
+
+2. **`NumServicos` (O Índice de Ancoragem e Fricção de Saída):**
+   A operadora não vende apenas internet; ela vende um "ecossistema" (Telefone, Múltiplas Linhas, Segurança, Backup, Proteção de Dispositivo, Suporte Técnico, TV e Filmes). 
+   * **A Solução:** Criamos a métrica `NumServicos` (soma simples de todos os serviços que o cliente possui). Na perspectiva de comportamento do consumidor, essa pontuação mede o **Custo de Mudança**. Cancelar um plano de internet é fácil. Mas cancelar a internet, o telefone da casa, a proteção do computador, perder o backup na nuvem e os canais de TV ao mesmo tempo gera atrito. Quanto maior o `NumServicos`, mais "ancorado" o cliente está ao ecossistema da empresa, reduzindo drasticamente o risco de migração (Churn) para a concorrência.

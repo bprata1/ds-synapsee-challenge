@@ -93,6 +93,7 @@ Para garantir a reprodutibilidade do projeto e a correta versão das dependênci
   * **Alto Risco (71-100):** **23.3% da base (1.640 clientes)** ~ Ação Imediata
 
 * **Relatório Técnico:** O detalhamento das decisões arquiteturais e trade-offs assumidos durante o desenvolvimento está documentado no arquivo `markdowns-ativos/draft-relatorio.md`.
+* **Relatório Final:** Análise retrospectiva do projeto com o que funcionou, o que não funcionou e o que faria diferente com mais tempo, dados ou contexto de negócio. Arquivo: `RELATORIO_FINAL.md`.
 
 ---
 

@@ -318,3 +318,50 @@ Dos 7.043 clientes na base, **1.640 (23.3%) caíram no Tier de Alto Risco** (sco
 No outro extremo, 2.927 clientes (41.6%) estão no **Tier de Baixo Risco** (score até 30). Estes não precisam de intervenção ativa — um e-mail automático de "sentimos sua falta" já é suficiente. Os 2.476 de **Risco Médio** (35.2%) são o campo de batalha das campanhas preventivas: ofertas de upgrade, descontos por fidelidade, ou migração de contrato mensal para anual.
 
 É exatamente esse tipo de priorização que justifica o investimento em Data Science: transformar uma massa amorfa de clientes em **filas de ação com urgência definida**.
+
+---
+
+## Decisões Aprovadas — Etapa 5 (Interface de Decisão / Deploy)
+
+### Etapa 5 - Separação do Módulo de Inferência para Produção
+
+* **Contexto:** O `inference.py` original descarta o `customerID` (o modelo não usa), mas a interface precisa dele para identificar clientes na tabela e no seletor.
+* **Decisão Final:** ✅ Criado `src/inference_app.py` como cópia isolada que preserva o `customerID` no output enquanto o modelo prediz sem ele. O `inference.py` original permanece inalterado como referência da Etapa 4.
+* **Trade-off:** Duplicação parcial de código (DRY violado) vs. isolamento de responsabilidades (MLOps). A separação garante que mudanças na interface não corrompam o módulo analítico, e vice-versa.
+* **Impacto Esperado:** Deploy sem risco de regressão no pipeline analítico. O app importa apenas o módulo de produção.
+
+### Etapa 5 - Teste de Sanidade (Robustez do Upload)
+
+* **Contexto:** O usuário final pode enviar qualquer CSV. O app precisa falhar graciosamente.
+* **Decisão Final:** ✅ Função `validate_columns()` verifica as 20 colunas obrigatórias antes do processamento. Se faltar alguma, emite `st.warning` amigável com a lista exata do que falta, sem quebrar a tela.
+* **Impacto Esperado:** Zero crashes na apresentação, independente do arquivo utilizado.
+
+### Etapa 5 - Arquitetura do MVP Streamlit
+
+* **Contexto:** A interface precisa atender dois perfis: (1) executivo que quer KPIs rápidos e (2) operador que precisa ligar para clientes específicos.
+* **Decisão Final:** ✅ Layout em 4 blocos: Upload → KPIs (métricas executivas) → Tabela de Ação (ordenada por score) → Filtro Operacional (por Tier + download CSV). Sidebar com seletor individual por `customerID`.
+* **Impacto Esperado:** Em menos de 30 segundos, o gerente vê o tamanho do problema (KPIs) e o operador baixa a lista filtrada de quem ligar (download por Tier).
+
+---
+
+### Storytelling de Deploy (Etapa 5)
+
+#### "Do Laboratório à Mesa de Operação"
+
+Um modelo de Machine Learning que vive apenas num notebook Jupyter é uma curiosidade acadêmica. O valor de negócio surge quando ele traduz dados em **ação**. É exatamente isso que o Synapsee Churn Predictor faz: o gerente de retenção abre a aplicação, arrasta o CSV do mês e, em segundos, tem a resposta para três perguntas críticas:
+
+1. **"Quantos clientes estão em risco?"** — Os KPIs no topo da tela respondem instantaneamente.
+2. **"Quem são eles?"** — A Tabela de Ação, ordenada do score mais alto para o mais baixo, é a fila de trabalho da equipe de discagem.
+3. **"O que eu exporto para o call center?"** — O filtro por Tier + botão de download gera o CSV filtrado com um clique.
+
+#### "Investimento Cirúrgico do Orçamento de Retenção"
+
+Sem o Score de Risco, a empresa teria que escolher entre duas estratégias ruins: (A) ligar para todos os 7.043 clientes (custo proibitivo) ou (B) não ligar para ninguém e torcer (irresponsável). Com o Score e os Tiers, o orçamento de retenção é alocado cirurgicamente: a equipe foca seus recursos nos **1.640 clientes de Alto Risco** (23% da base) que concentram a maior probabilidade de cancelamento. Os 2.927 de Baixo Risco recebem um e-mail automático — custo marginal próximo de zero.
+
+#### "MLOps: Por que Dois Módulos de Inferência?"
+
+A decisão de separar `inference.py` (analítico) e `inference_app.py` (produção) não é capricho. É uma prática de **MLOps** que protege o pipeline contra dois riscos comuns em projetos de Data Science:
+- **Risco de regressão:** Uma alteração na interface (ex: "adicione o nome do cliente na tabela") poderia inadvertidamente quebrar o módulo analítico que alimenta os notebooks de validação.
+- **Risco de acoplamento:** Se amanhã o modelo for recalibrado ou substituído por um XGBoost, apenas o `inference.py` muda. O `inference_app.py` continua consumindo a mesma interface `.predict()` e `.predict_proba()` do scikit-learn.
+
+Essa separação custa algumas linhas de código duplicadas, mas compra **segurança operacional** — um trade-off que qualquer engenheiro de ML reconhece como vantajoso.

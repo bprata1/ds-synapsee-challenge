@@ -37,3 +37,8 @@
   * **Dataframe(s) Ativo(s):** `df_processed` | Shape: `(7043, 24)` → `(7043, 26)` (Risk_Score e Risk_Tier adicionados)
   * **Alteração:** (1) Score de Risco calculado via `predict_proba * 100`. (2) Tiers criados: Baixo (0-30), Médio (31-70), Alto (71-100). (3) Validação de coerência: PASS (média Churn=Sim: 67.4, Churn=Não: 32.6, separação 34.8pts). (4) Módulo `src/inference.py` criado com funções `preprocess_features` e `predict_and_score`. (5) Base scored salva em `data/processed/telco_churn_scored.csv`. (6) Função `predict_and_score` testada end-to-end com base bruta original.
   * **Descrição:** 1.640 clientes (23.3%) no Tier de Alto Risco. Pipeline de inferência pronto para consumo pelo Streamlit na Etapa 5.
+
+* **[2026-04-15 10:48] - Etapa 5: Interface Streamlit e Deploy**
+  * **Dataframe(s) Ativo(s):** Nenhum novo DataFrame persistido (inferência ocorre em runtime).
+  * **Alteração:** (1) Criado `src/inference_app.py` com `predict_and_score_app` preservando customerID + `validate_columns` para robustez. (2) Criado `app.py` (Streamlit MVP): upload CSV, validação de sanidade, KPIs executivos, tabela de ação ordenada, filtro por Tier + download CSV, seletor de cliente na sidebar. (3) Gerado `data/raw/sample_upload_batch.csv` (50 linhas) para testes. (4) Testado pipeline end-to-end com sample batch — OK.
+  * **Descrição:** Interface funcional pronta para apresentação. O app consome o modelo congelado `models/campeao.joblib` e executa o pipeline completo (limpeza → predição → score → tiers) sobre qualquer CSV bruto no formato Telco.

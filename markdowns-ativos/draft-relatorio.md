@@ -37,3 +37,142 @@ Este documento consolida o histórico de decisões arquiteturais e analíticas p
 * **Trade-off:** Opção B é mais segura e simples como baseline. SMOTE pode aumentar Recall mas introduz risco de overfitting em amostras sintéticas.
 * **Decisão Final:** ✅ Opção **B — `class_weight='balanced'`** como baseline. Aprovada pelo usuário.
 * **Impacto Esperado:** Decisão direta no Recall da classe 1 (SLA de ≥70%). Abordagem será aplicada na Etapa 3 (Modelagem).
+
+---
+
+## Defesa Técnica da EDA — Insights de Negócio com Evidências
+
+> Esta seção resume os achados da Etapa 1 em formato de storytelling, com evidências visuais e dados de suporte para a apresentação ao vivo.
+
+### Quem é o "vilão" do Churn?
+
+O perfil de maior risco de cancelamento é o **cliente de contrato mensal com fibra óptica e sem serviços de proteção**. Os dados comprovam:
+
+| Feature | Categoria de Risco | Taxa de Churn | Média Global |
+| --- | --- | --- | --- |
+| Contract | Month-to-month | **42.7%** | 26.5% |
+| InternetService | Fiber optic | **41.9%** | 26.5% |
+| OnlineSecurity | No | **41.8%** | 26.5% |
+| TechSupport | No | **41.6%** | 26.5% |
+| PaymentMethod | Electronic check | **45.3%** | 26.5% |
+
+Em contraste, contratos anuais (11.3%) e bianuais (2.8%) praticamente eliminam o churn. Pagamentos automáticos (cartão: 15.2%, transferência: 16.7%) também indicam maior fidelização.
+
+![Taxa de Churn por Feature Categórica](../reports/figures/eda_categoricas_vs_churn.png)
+
+### O Impacto do `tenure` (Tempo de Casa)
+
+O `tenure` é a variável numérica com **maior correlação com Churn** (r = **-0.3522**, p < 10⁻²⁰⁵):
+
+| Métrica | Churn = No | Churn = Yes |
+| --- | --- | --- |
+| Média de tenure (meses) | 37.6 | 18.0 |
+| Mediana de tenure (meses) | 38 | **10** |
+| Desvio padrão | 24.1 | 19.5 |
+
+Clientes que cancelam têm mediana de **10 meses** — metade se vai antes de completar 1 ano. A distribuição KDE revela um pico massivo de churn nos primeiros 6 meses (a "janela de perigo") e estabilização após ~24 meses.
+
+![Distribuição KDE das Variáveis Numéricas por Churn](../reports/figures/eda_kde_numericas.png)
+
+![Boxplot das Variáveis Numéricas por Churn](../reports/figures/eda_numericas_vs_churn.png)
+
+---
+
+### Insight 1 — "O Combo Tóxico"
+
+Um cliente com *contrato mensal + fibra óptica + sem suporte técnico + pagamento por electronic check* é um alvo quase certo de churn. Cada uma dessas 4 características individualmente já eleva a taxa acima da média (~26.5%), e combinadas representam o caso extremo.
+
+**Dados de suporte:**
+
+| Característica | Taxa de Churn Individual |
+| --- | --- |
+| Contract = Month-to-month | 42.7% |
+| InternetService = Fiber optic | 41.9% |
+| TechSupport = No | 41.6% |
+| PaymentMethod = Electronic check | 45.3% |
+
+**Evidência visual:** Os gráficos de taxa de churn por categórica mostram que todas essas categorias ultrapassam a linha tracejada (média global) por larga margem.
+
+![Taxa de Churn por Feature Categórica](../reports/figures/eda_categoricas_vs_churn.png)
+
+---
+
+### Insight 2 — "Os Primeiros 6 Meses Decidem Tudo"
+
+A maior concentração de cancelamentos acontece em clientes com menos de 6 meses de casa. A empresa precisa tratar esses clientes como em "UTI" — cada mês que passa sem cancelar reduz exponencialmente o risco.
+
+**Dados de suporte:**
+* Mediana de tenure para Churn=Yes: **10 meses**
+* Mediana de tenure para Churn=No: **38 meses**
+* Correlação ponto-bisserial tenure × Churn: **r = -0.3522** (p < 10⁻²⁰⁵)
+
+**Implicação para o negócio:** Programas de retenção devem ser mais agressivos no primeiro semestre de contrato. Após ~24 meses, o risco de cancelamento se torna residual.
+
+![Distribuição KDE — tenure por Churn](../reports/figures/eda_kde_numericas.png)
+
+---
+
+### Insight 3 — "O Paradoxo da Fibra Óptica"
+
+O serviço mais premium (Fiber optic) tem a **maior taxa de cancelamento** (41.9%), enquanto DSL (19.0%) e sem internet (7.4%) retêm mais. Isso sugere uma **desconexão entre preço e valor percebido**.
+
+**Dados de suporte:**
+
+| Tipo de Internet | Taxa de Churn | MonthlyCharges Médio* |
+| --- | --- | --- |
+| Fiber optic | **41.9%** | ~$80-90 |
+| DSL | 19.0% | ~$50-60 |
+| No | 7.4% | ~$20 |
+
+*Faixas estimadas a partir dos boxplots.
+
+Clientes pagam mais caro por fibra, mas sem os serviços complementares (segurança online: 14.6% de churn com, 41.8% sem; suporte técnico: 15.2% com, 41.6% sem), a insatisfação dispara. O churn não é do serviço em si — é da falta de "ecossistema de valor" ao redor dele.
+
+![Boxplot Numéricas vs Churn](../reports/figures/eda_numericas_vs_churn.png)
+
+---
+
+### Tabela de Correlações — Top 5 Features com Maior Impacto no Churn
+
+#### Variáveis Categóricas (Cramér's V)
+
+| Rank | Feature | Cramér's V | Interpretação |
+| --- | --- | --- | --- |
+| 1 | Contract | **0.4101** | Month-to-month dispara churn; contratos longos retêm |
+| 2 | OnlineSecurity | **0.3474** | Ausência de segurança online eleva churn em ~3x |
+| 3 | TechSupport | **0.3429** | Ausência de suporte técnico tem efeito similar |
+| 4 | InternetService | **0.3225** | Fiber optic paradoxalmente lidera cancelamentos |
+| 5 | PaymentMethod | **0.3034** | Electronic check concentra 45% de churn |
+
+#### Variáveis Numéricas (Correlação Ponto-Bisserial)
+
+| Feature | Correlação (r) | p-valor | Direção |
+| --- | --- | --- | --- |
+| tenure | **-0.3522** | 8.00e-205 | Mais tempo de casa → menos churn |
+| TotalCharges | **-0.1995** | 4.88e-64 | Mais gasto acumulado → menos churn (correlação com tenure) |
+| MonthlyCharges | **+0.1934** | 2.71e-60 | Cobranças mensais altas → mais churn |
+
+![Ranking de Relevância das Features](../reports/figures/eda_ranking_features.png)
+
+---
+
+### Resumo da Varredura de Qualidade de Dados
+
+Varredura sistêmica executada em **100% das colunas** (21 variáveis) para demonstrar rigor metodológico:
+
+| Verificação | Resultado |
+| --- | --- |
+| NaN explícitos (`isnull`) | 0 |
+| Nulos ocultos (espaços em branco) | 11 em `TotalCharges` (tenure=0) — tratados |
+| Marcadores disfarçados (`?`, `NA`, `N/A`, `null`, `-`) | 0 |
+| Valores negativos (todas as numéricas) | 0 |
+| `SeniorCitizen` fora de {0, 1} | 0 |
+| `tenure` acima de 10 anos | 0 (máx: 72 meses = 6 anos) |
+| `MonthlyCharges` == 0 | 0 |
+| Duplicatas de `customerID` | 0 |
+
+**Conclusão:** Base limpa. Único tratamento aplicado: imputação de TotalCharges com 0 nos 11 registros com tenure=0.
+
+![Heatmap de Correlação](../reports/figures/eda_heatmap_correlacao.png)
+
+![Distribuição de Churn](../reports/figures/eda_churn_distribuicao.png)

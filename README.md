@@ -4,7 +4,7 @@
 
 ## 🚦 Status do Projeto
 
-* **Fase atual:** ✅ Projeto finalizado. Todas as 5 etapas concluídas com sucesso. Interface de inferência operacional via Streamlit.
+* **Fase atual:** ✅ Projeto finalizado. Todas as 5 etapas concluídas com sucesso. Interface de inferência operacional via Streamlit
 
 ---
 

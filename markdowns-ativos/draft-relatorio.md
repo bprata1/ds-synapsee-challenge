@@ -102,6 +102,7 @@ Um cliente com *contrato mensal + fibra óptica + sem suporte técnico + pagamen
 A maior concentração de cancelamentos acontece em clientes com menos de 6 meses de casa. A empresa precisa tratar esses clientes como em "UTI" — cada mês que passa sem cancelar reduz exponencialmente o risco.
 
 **Dados de suporte:**
+
 * Mediana de tenure para Churn=Yes: **10 meses**
 * Mediana de tenure para Churn=No: **38 meses**
 * Correlação ponto-bisserial tenure × Churn: **r = -0.3522** (p < 10⁻²⁰⁵)

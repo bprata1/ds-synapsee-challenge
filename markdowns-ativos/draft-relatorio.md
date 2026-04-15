@@ -213,3 +213,60 @@ Durante o pré-processamento, criamos duas novas variáveis que vão muito além
 2. **`NumServicos` (O Índice de Ancoragem e Fricção de Saída):**
    A operadora não vende apenas internet; ela vende um "ecossistema" (Telefone, Múltiplas Linhas, Segurança, Backup, Proteção de Dispositivo, Suporte Técnico, TV e Filmes). 
    * **A Solução:** Criamos a métrica `NumServicos` (soma simples de todos os serviços que o cliente possui). Na perspectiva de comportamento do consumidor, essa pontuação mede o **Custo de Mudança**. Cancelar um plano de internet é fácil. Mas cancelar a internet, o telefone da casa, a proteção do computador, perder o backup na nuvem e os canais de TV ao mesmo tempo gera atrito. Quanto maior o `NumServicos`, mais "ancorado" o cliente está ao ecossistema da empresa, reduzindo drasticamente o risco de migração (Churn) para a concorrência.
+
+---
+
+## Decisões Aprovadas — Etapa 3 (Modelagem Preditiva)
+
+### Etapa 3 - Escolha de Algoritmos: Logistic Regression vs Random Forest
+
+* **Contexto:** O PLANO exige comparação de pelo menos dois algoritmos com trade-off entre interpretabilidade e performance.
+* **Alternativas Consideradas:**
+  * (A) Logistic Regression — Coeficientes diretamente traduzíveis para log-odds. Baseline interpretável. Requer escalonamento.
+  * (B) Random Forest — Ensemble de árvores que captura interações não-lineares. Feature importance nativa. Invariante a escala.
+  * (C) XGBoost — Boosting sequencial com gradiente. Potencialmente ~1-3pp superior ao RF, mas com ~9 hiperparâmetros críticos.
+* **Trade-off:** XGBoost foi deliberadamente descartado: margem de ganho não justifica a complexidade de tuning sob restrição de tempo, e a explicação na defesa técnica seria substancialmente mais difícil ("boosting com gradiente + regularização L1/L2" vs "bagging + votação de árvores").
+* **Decisão Final:** ✅ LR (baseline interpretável) + RF (performance). Aprovado pelo usuário.
+* **Impacto Esperado:** Comparação clara e defensável. Se RF não superar LR significativamente, reforça o argumento do "básico bem feito".
+
+### Etapa 3 - Seleção do Modelo Campeão
+
+* **Contexto:** Ambos os modelos foram tunados via RandomizedSearchCV (scoring=Macro F1, 5-fold stratified). Resultados no holdout:
+
+| Modelo | Recall (Churn) | Precision (Churn) | Macro F1 (Teste) | Macro F1 (Treino) | Gap (pp) | ROC-AUC |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Logistic Regression** | **0.7807** | 0.5069 | **0.7094** | 0.7241 | **1.47** | **0.8384** |
+| Random Forest | 0.6471 | 0.5654 | 0.7229 | 0.9031 | 18.02 | 0.8363 |
+
+* **Alternativas Consideradas:**
+  * (A) Selecionar RF pelo Macro F1 bruto ligeiramente superior (0.72 vs 0.71).
+  * (B) Selecionar LR como única a atender os 3 SLAs simultaneamente.
+* **Trade-off:** A RF apresentou Macro F1 marginalmente superior (+1.3pp), mas com **overfitting severo** (gap de 18pp vs SLA de ≤10pp) e **Recall insuficiente** (0.65 vs SLA de ≥0.70). A LR generaliza de forma robusta (gap de apenas 1.5pp) e captura 78% dos churners reais.
+* **Decisão Final:** ✅ **Logistic Regression** como modelo campeão. Hiperparâmetros: `C=0.01` (regularização forte), `solver=lbfgs`.
+* **Impacto Esperado:** Modelo robusto, interpretável e com probabilidades naturalmente bem calibradas para alimentar o Score de Risco (Etapa 4). A regularização forte (C=0.01) confirma que o modelo prioriza simplicidade sobre ajuste extremo — coerente com o mindset do projeto.
+
+### Etapa 3 - Métrica de Otimização: Por que Macro F1 e não AUC-ROC
+
+* **Contexto:** Havia três candidatas: Recall puro, Macro F1 e AUC-ROC.
+* **Decisão Final:** ✅ Otimizar pelo Macro F1-Score via cross-validation.
+* **Trade-off:** O Recall sozinho é enganoso (modelo que prediz "Churn" para todos tem Recall=100%). A AUC-ROC avalia o ranking probabilístico em todos os thresholds, mas não garante performance no threshold padrão (0.5). O Macro F1 equilibra naturalmente Precision e Recall **para ambas as classes**, sendo o SLA mais restritivo do projeto.
+
+---
+
+### Storytelling de Modelagem (Etapa 3)
+
+#### "O Básico que Vence o Complexo"
+
+A história da Etapa 3 é uma lição de pragmatismo em Data Science. Treinamos dois modelos: uma **Regressão Logística** — o algoritmo mais simples e interpretável do arsenal — e uma **Random Forest** — um ensemble de centenas de árvores de decisão trabalhando em votação.
+
+A Random Forest teve uma nota ligeiramente melhor no "exercício de treino" (Macro F1 de 0.72 vs 0.71). Mas quando testamos com dados que o modelo **nunca viu**, a verdade apareceu: a Random Forest "decorou" os padrões do treino (gap de 18pp entre treino e teste), enquanto a Regressão Logística manteve performance quase idêntica (gap de apenas 1.5pp). Em ciência de dados, decorar não é aprender — é **overfitting**.
+
+Mais importante: o objetivo de negócio é **não deixar escapar clientes que vão cancelar**. A Regressão Logística capturou **78% dos churners reais** (Recall), enquanto a Random Forest capturou apenas 65%. Para cada 100 clientes que de fato cancelariam, a LR identifica 78 a tempo de agir; a RF deixa 35 escaparem.
+
+#### "O Preço da Vigilância"
+
+A LR tem uma **Precision de 51%** — ou seja, de cada 100 clientes que ela marca como "risco de churn", cerca de 51 realmente cancelam e 49 são falsos alarmes. Isso é um trade-off consciente e defensável: o custo de ligar para um cliente satisfeito oferecendo uma promoção de retenção (falso positivo) é **muito menor** do que o custo de perder um cliente insatisfeito que ninguém tentou reter (falso negativo). A configuração `class_weight='balanced'` calibra exatamente esse balanço.
+
+#### "Por que a Logística é a Favorita dos Negócios"
+
+A Regressão Logística não é uma "caixa preta". Cada feature tem um **coeficiente** que traduz diretamente o impacto no risco de churn. Se o coeficiente de `Contract` é negativo e alto, significa que contratos mais longos **reduzem o risco**. Se o de `PaymentMethod_Electronic check` é positivo, confirma que esse método de pagamento **eleva o risco**. Esses coeficientes são a base da conversa com a diretoria: ações de retenção dirigidas com evidência matemática.

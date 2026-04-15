@@ -27,3 +27,8 @@
   * **Dataframe(s) Ativo(s):** `df_raw` | Shape: `(7043, 21)` → `df_processed` | Shape: `(7043, 24)`
   * **Alteração:** (1) Criada e executada função `preprocess_features` no notebook 02. (2) Imputação e TicketMedio reaplicados. (3) Features binárias mapeadas para 0/1, colapsando 'No internet service'/'No phone service' para 0. (4) `InternetService` e `PaymentMethod` convertidas via One-Hot Encoding (`drop_first=True`). (5) `Contract` convertida ordinalmente (0-2). (6) `customerID` dropada. (7) Criada feature `NumServicos` (soma das 8 binárias de serviço). (8) Dataset final salvo em `data/processed/telco_churn_features.csv`.
   * **Descrição:** Pipeline consolidado em função única pensando no deploy (Streamlit consumirá a base crua futuramente). DataFrame exportado pronto para a Etapa 3 (sem escalonamento, que será delegado aos pipelines do scikit-learn).
+
+* **[2026-04-15 08:02] - Etapa 3: Modelagem Preditiva (LR vs RF)**
+  * **Dataframe(s) Ativo(s):** `df` (loaded from CSV) | Shape: `(7043, 24)` → X_train `(5634, 23)` / X_test `(1409, 23)`
+  * **Alteração:** (1) Split estratificado 80/20. (2) Logistic Regression tunada (C=0.01, solver=lbfgs) com StandardScaler no Pipeline. (3) Random Forest tunada (200 arvores, max_depth=15). (4) LR selecionada como campeã — única a atender todos os 3 SLAs simultaneamente. (5) RF descartada por overfitting severo (gap=18pp, SLA<=10pp). (6) Modelo LR salvo em `models/campeao.joblib`. (7) Figuras: confusion matrix, ROC curve, calibration curve, feature importance.
+  * **Descrição:** Resultados no holdout: LR Recall=0.78, Macro F1=0.71, ROC-AUC=0.84, Gap=1.5pp. Todos os SLAs PASS. RF teve Macro F1 ligeiramente superior (0.72) mas gap inaceitável (18pp) e Recall insuficiente (0.65).

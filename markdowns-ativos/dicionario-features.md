@@ -199,3 +199,19 @@
 * **Origem/Fonte:** Base bruta.
 * **Matemática/Transformação:** Mapeada para Yes=1, No=0.
 * **Status:** Processed
+
+## Risk_Score
+
+* **Descrição:** Score de Risco de churn do cliente, em escala contínua de 0 a 100. Quanto maior, maior a probabilidade estimada de cancelamento.
+* **Origem/Fonte:** Feature derivada (Etapa 4 — Score de Risco).
+* **Fórmula/Filtro:** `Risk_Score = round(predict_proba(X)[:, 1] * 100)`. Transformação monotônica direta da probabilidade da classe Churn emitida pelo modelo campeão (Logistic Regression).
+* **Limites:** Mínimo observado: 2 | Máximo observado: 94. Média Churn=Sim: 67.4 | Média Churn=Não: 32.6 (separação de 34.8 pontos).
+* **Status:** Ativa (output de inferência, não input de treino)
+
+## Risk_Tier
+
+* **Descrição:** Faixa de prioridade operacional derivada do Risk_Score para direcionar ações de retenção.
+* **Origem/Fonte:** Feature derivada (Etapa 4 — Score de Risco).
+* **Fórmula/Filtro:** Baixo Risco (0-30) | Risco Médio (31-70) | Alto Risco (71-100).
+* **Distribuição:** Baixo Risco: 2.927 clientes (41.6%) | Risco Médio: 2.476 (35.2%) | Alto Risco: 1.640 (23.3%).
+* **Status:** Ativa (output de inferência, não input de treino)

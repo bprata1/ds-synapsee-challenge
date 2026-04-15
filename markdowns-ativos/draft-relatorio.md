@@ -270,3 +270,51 @@ A LR tem uma **Precision de 51%** — ou seja, de cada 100 clientes que ela marc
 #### "Por que a Logística é a Favorita dos Negócios"
 
 A Regressão Logística não é uma "caixa preta". Cada feature tem um **coeficiente** que traduz diretamente o impacto no risco de churn. Se o coeficiente de `Contract` é negativo e alto, significa que contratos mais longos **reduzem o risco**. Se o de `PaymentMethod_Electronic check` é positivo, confirma que esse método de pagamento **eleva o risco**. Esses coeficientes são a base da conversa com a diretoria: ações de retenção dirigidas com evidência matemática.
+
+---
+
+## Decisões Aprovadas — Etapa 4 (Score de Risco)
+
+### Etapa 4 - Transformação da Probabilidade em Score de Risco
+
+* **Contexto:** O modelo campeão (LR) emite uma probabilidade contínua entre 0 e 1 via `predict_proba`. A operação precisa de uma métrica intuitiva e acionável.
+* **Decisão Final:** ✅ `Risk_Score = round(predict_proba[:, 1] * 100)`. Transformação monotônica direta, sem calibração adicional (LR já é naturalmente bem calibrada, confirmado pela curva de calibração da Etapa 3).
+* **Impacto Esperado:** Score inteiro de 0 a 100, fácil de comunicar e monitorar. Atende o SLA de coerência monotônica (score médio Churn=Sim: 67.4 > Churn=Não: 32.6, separação de 34.8 pontos).
+
+### Etapa 4 - Definição dos Tiers de Risco
+
+* **Contexto:** A operação não pode tratar 7.043 clientes individualmente. Precisa de faixas de prioridade.
+* **Decisão Final:** ✅ Três Tiers: Baixo Risco (0-30), Risco Médio (31-70), Alto Risco (71-100).
+* **Distribuição Resultante:**
+
+| Tier | Clientes | % do Total | Ação Operacional |
+| --- | --- | --- | --- |
+| Baixo Risco | 2.927 | 41.6% | Monitoramento passivo |
+| Risco Médio | 2.476 | 35.2% | Campanhas de retenção preventivas |
+| **Alto Risco** | **1.640** | **23.3%** | **Ação imediata (ligação, oferta, desconto)** |
+
+* **Impacto Esperado:** A equipe de retenção foca ação direta em ~1.640 clientes (23% da base), tornando o esforço operacional viável e economicamente justificável.
+
+### Etapa 4 - Módulo de Inferência para Produção (`src/inference.py`)
+
+* **Contexto:** O Streamlit receberá um CSV bruto e precisa devolver o score sem que o usuário se preocupe com o pipeline interno.
+* **Decisão Final:** ✅ Criada função `predict_and_score(df_raw, model)` que encapsula `preprocess_features` + `predict` + `predict_proba` + classificação em Tiers. Código isolado em `src/inference.py` para importação direta pelo app.
+* **Impacto Esperado:** Deploy sem fricção: o app importa uma única função e recebe tudo pronto.
+
+---
+
+### Storytelling do Score de Risco (Etapa 4)
+
+#### "De Probabilidade Matemática a Prioridade de Negócio"
+
+O modelo de Machine Learning fala em "probabilidades" — um número entre 0 e 1 que, na cabeça do cientista de dados, tem significado preciso. Mas para o gerente de retenção que precisa decidir em 5 minutos para quem ligar primeiro, "0.73 de probabilidade" é abstrato demais.
+
+Por isso traduzimos: **Score de Risco de 0 a 100**. Zero é segurança total; cem é emergência de cancelamento. O cálculo é deliberadamente simples (probabilidade × 100, arredondado) para garantir **transparência total** — se o gerente perguntar "como esse número foi calculado?", a resposta cabe em uma frase.
+
+#### "O Tamanho do Problema"
+
+Dos 7.043 clientes na base, **1.640 (23.3%) caíram no Tier de Alto Risco** (score acima de 70). Esses são os clientes que o modelo identifica com mais de 70% de chance de cancelar. É um número gerenciável: uma equipe de 10 operadores fazendo 20 ligações/dia cobre essa fila em ~8 dias úteis.
+
+No outro extremo, 2.927 clientes (41.6%) estão no **Tier de Baixo Risco** (score até 30). Estes não precisam de intervenção ativa — um e-mail automático de "sentimos sua falta" já é suficiente. Os 2.476 de **Risco Médio** (35.2%) são o campo de batalha das campanhas preventivas: ofertas de upgrade, descontos por fidelidade, ou migração de contrato mensal para anual.
+
+É exatamente esse tipo de priorização que justifica o investimento em Data Science: transformar uma massa amorfa de clientes em **filas de ação com urgência definida**.

@@ -32,3 +32,8 @@
   * **Dataframe(s) Ativo(s):** `df` (loaded from CSV) | Shape: `(7043, 24)` → X_train `(5634, 23)` / X_test `(1409, 23)`
   * **Alteração:** (1) Split estratificado 80/20. (2) Logistic Regression tunada (C=0.01, solver=lbfgs) com StandardScaler no Pipeline. (3) Random Forest tunada (200 arvores, max_depth=15). (4) LR selecionada como campeã — única a atender todos os 3 SLAs simultaneamente. (5) RF descartada por overfitting severo (gap=18pp, SLA<=10pp). (6) Modelo LR salvo em `models/campeao.joblib`. (7) Figuras: confusion matrix, ROC curve, calibration curve, feature importance.
   * **Descrição:** Resultados no holdout: LR Recall=0.78, Macro F1=0.71, ROC-AUC=0.84, Gap=1.5pp. Todos os SLAs PASS. RF teve Macro F1 ligeiramente superior (0.72) mas gap inaceitável (18pp) e Recall insuficiente (0.65).
+
+* **[2026-04-15 08:42] - Etapa 4: Score de Risco e Módulo de Inferência**
+  * **Dataframe(s) Ativo(s):** `df_processed` | Shape: `(7043, 24)` → `(7043, 26)` (Risk_Score e Risk_Tier adicionados)
+  * **Alteração:** (1) Score de Risco calculado via `predict_proba * 100`. (2) Tiers criados: Baixo (0-30), Médio (31-70), Alto (71-100). (3) Validação de coerência: PASS (média Churn=Sim: 67.4, Churn=Não: 32.6, separação 34.8pts). (4) Módulo `src/inference.py` criado com funções `preprocess_features` e `predict_and_score`. (5) Base scored salva em `data/processed/telco_churn_scored.csv`. (6) Função `predict_and_score` testada end-to-end com base bruta original.
+  * **Descrição:** 1.640 clientes (23.3%) no Tier de Alto Risco. Pipeline de inferência pronto para consumo pelo Streamlit na Etapa 5.

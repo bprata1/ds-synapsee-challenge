@@ -40,29 +40,7 @@ Este documento consolida o histórico de decisões arquiteturais e analíticas p
 
 ---
 
-## Decisões Aprovadas — Etapa 2 (Pipeline de Features)
-
-### Etapa 2 - Estratégia de Encoding e Colapso de Categorias
-
-* **Contexto:** 14 variáveis categóricas para transformar matematicamente (binárias, ternárias e multiclasse).
-* **Decisão Final:** ✅ Mapeamento manual para binárias e ternárias que possuíam o valor "No internet/phone service" (colapsadas para 0, eliminando esparsidade sem perda de sinal). One-Hot Encoding (com `drop_first=True`) para as multiclasses reais (`InternetService` e `PaymentMethod`). O contrato (`Contract`) recebeu codificação ordinal devido à queda monotônica do churn observada na EDA.
-* **Impacto Esperado:** Dataset limpo, compacto e livre da explosão dimensional de dummies puras, otimizado para a performance de algoritmos baseados em árvores e logística.
-
-### Etapa 2 - Estratégia de Escalonamento
-
-* **Contexto:** Dados numéricos como `TotalCharges`, `TicketMedio` e `tenure` variam em ordens de grandeza distintas. Escaloná-los na base pode gerar "data leakage".
-* **Decisão Final:** ✅ Adiar o escalonamento. Os dados exportados não sofrem normalização ou padronização.
-* **Impacto Esperado:** A responsabilidade de escalar features numéricas será inserida na pipeline do modelo no Scikit-Learn durante a Etapa 3. Garante que os testes no Streamlit não precisarão aplicar scalers manualmente à base enviada.
-
-### Etapa 2 - Feature Engineering: Criando `NumServicos`
-
-* **Contexto:** Após as transformações, havia espaço para derivar valor a partir do engajamento do cliente com o portfólio.
-* **Decisão Final:** ✅ Criar a variável `NumServicos`, calculada pela soma das 8 flags binárias de serviços (Net e Telefone).
-* **Impacto Esperado:** Captura linearmente o nível de "ancoragem" do cliente. Quanto maior a pontuação, maior o custo de mudança do cliente, fornecendo à modelagem uma representação clara da aderência aos produtos da operadora.
-
----
-
-## Defesa Técnica da EDA — Insights de Negócio com Evidências
+## Defesa Técnica EDA — Insights de Negócio com Evidências
 
 > Esta seção resume os achados da Etapa 1 em formato de storytelling, com evidências visuais e dados de suporte para a apresentação ao vivo.
 
@@ -199,3 +177,25 @@ Varredura sistêmica executada em **100% das colunas** (21 variáveis) para demo
 ![Heatmap de Correlação](../reports/figures/eda_heatmap_correlacao.png)
 
 ![Distribuição de Churn](../reports/figures/eda_churn_distribuicao.png)
+
+---
+
+## Decisões Aprovadas — Etapa 2 (Pipeline de Features)
+
+### Etapa 2 - Estratégia de Encoding e Colapso de Categorias
+
+* **Contexto:** 14 variáveis categóricas para transformar matematicamente (binárias, ternárias e multiclasse).
+* **Decisão Final:** ✅ Mapeamento manual para binárias e ternárias que possuíam o valor "No internet/phone service" (colapsadas para 0, eliminando esparsidade sem perda de sinal). One-Hot Encoding (com `drop_first=True`) para as multiclasses reais (`InternetService` e `PaymentMethod`). O contrato (`Contract`) recebeu codificação ordinal devido à queda monotônica do churn observada na EDA.
+* **Impacto Esperado:** Dataset limpo, compacto e livre da explosão dimensional de dummies puras, otimizado para a performance de algoritmos baseados em árvores e logística.
+
+### Etapa 2 - Estratégia de Escalonamento
+
+* **Contexto:** Dados numéricos como `TotalCharges`, `TicketMedio` e `tenure` variam em ordens de grandeza distintas. Escaloná-los na base pode gerar "data leakage".
+* **Decisão Final:** ✅ Adiar o escalonamento. Os dados exportados não sofrem normalização ou padronização.
+* **Impacto Esperado:** A responsabilidade de escalar features numéricas será inserida na pipeline do modelo no Scikit-Learn durante a Etapa 3. Garante que os testes no Streamlit não precisarão aplicar scalers manualmente à base enviada.
+
+### Etapa 2 - Feature Engineering: Criando `NumServicos`
+
+* **Contexto:** Após as transformações, havia espaço para derivar valor a partir do engajamento do cliente com o portfólio.
+* **Decisão Final:** ✅ Criar a variável `NumServicos`, calculada pela soma das 8 flags binárias de serviços (Net e Telefone).
+* **Impacto Esperado:** Captura linearmente o nível de "ancoragem" do cliente. Quanto maior a pontuação, maior o custo de mudança do cliente, fornecendo à modelagem uma representação clara da aderência aos produtos da operadora.

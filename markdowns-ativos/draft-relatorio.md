@@ -211,7 +211,7 @@ Durante o pré-processamento, criamos duas novas variáveis que vão muito além
    * **A Solução:** Criamos o `TicketMedio` (`TotalCharges / tenure`). Ele responde à pergunta: *"Quanto, em média, esse cliente tirou do bolso por mês desde que entrou?"*. Se o `MonthlyCharges` é muito diferente do `TicketMedio`, sabemos que o cliente sofreu *upsell* (comprou mais coisas) ou *downsell* (cancelou serviços) ao longo do tempo.
 
 2. **`NumServicos` (O Índice de Ancoragem e Fricção de Saída):**
-   A operadora não vende apenas internet; ela vende um "ecossistema" (Telefone, Múltiplas Linhas, Segurança, Backup, Proteção de Dispositivo, Suporte Técnico, TV e Filmes). 
+   A operadora não vende apenas internet; ela vende um "ecossistema" (Telefone, Múltiplas Linhas, Segurança, Backup, Proteção de Dispositivo, Suporte Técnico, TV e Filmes).
    * **A Solução:** Criamos a métrica `NumServicos` (soma simples de todos os serviços que o cliente possui). Na perspectiva de comportamento do consumidor, essa pontuação mede o **Custo de Mudança**. Cancelar um plano de internet é fácil. Mas cancelar a internet, o telefone da casa, a proteção do computador, perder o backup na nuvem e os canais de TV ao mesmo tempo gera atrito. Quanto maior o `NumServicos`, mais "ancorado" o cliente está ao ecossistema da empresa, reduzindo drasticamente o risco de migração (Churn) para a concorrência.
 
 ---

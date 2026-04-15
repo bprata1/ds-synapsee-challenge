@@ -127,7 +127,7 @@ if arquivo_csv is not None:
 
     st.dataframe(
         df_tabela,
-        use_container_width=True,
+        width=None,
         height=400,
         column_config={
             "customerID": st.column_config.TextColumn("ID do Cliente"),

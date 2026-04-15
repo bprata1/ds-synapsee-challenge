@@ -115,6 +115,21 @@ def preprocess_features_for_app(df):
     if "customerID" in df_proc.columns:
         df_proc.drop(columns=["customerID"], inplace=True)
 
+    # --- Robustez OHE: garantir que TODAS as colunas dummy esperadas pelo
+    # modelo existam, mesmo que o batch nao contenha todos os valores
+    # categoricos (ex: um CSV so com clientes DSL nao gera a coluna
+    # 'InternetService_Fiber optic'). Sem isso, sklearn rejeita o input.
+    colunas_ohe_esperadas = [
+        "InternetService_Fiber optic",
+        "InternetService_No",
+        "PaymentMethod_Credit card (automatic)",
+        "PaymentMethod_Electronic check",
+        "PaymentMethod_Mailed check",
+    ]
+    for coluna in colunas_ohe_esperadas:
+        if coluna not in df_proc.columns:
+            df_proc[coluna] = 0
+
     # --- 3. Engenharia de Features ---
     servicos_cols = internet_features + ["PhoneService", "MultipleLines"]
     df_proc["NumServicos"] = df_proc[servicos_cols].sum(axis=1)

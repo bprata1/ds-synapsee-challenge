@@ -3,11 +3,13 @@
 > **Visão Geral:** Este repositório contém o pipeline analítico ponta a ponta desenvolvido para o desafio técnico da Synapsee. O objetivo principal é prever a probabilidade de cancelamento de serviços (Churn) de clientes de telecomunicações, identificando perfis de risco e derivando um Score de Risco contínuo (0-100), culminando na entrega de uma aplicação interativa preditiva em Streamlit.
 
 ## 🚦 Status do Projeto
+
 * **Fase atual:** Etapa 3 (Modelagem Preditiva) concluída. Modelo campeão selecionado e salvo. Próximo passo: Lógica do Score de Risco (Etapa 4).
 
 ---
 
 ## 📊 O Dataset
+
 * **Fonte:** [Telco Customer Churn — IBM/Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 * **Descrição:** 7.043 registros de clientes de uma operadora de telecom, com 21 variáveis (dados demográficos, serviços contratados, faturamento e tenure). Variável alvo: `Churn` (Yes/No), com desbalanceamento moderado de 2.77:1 (~73.5% No / 26.5% Yes).
 
@@ -21,15 +23,18 @@
 ---
 
 ## ⚙️ Como Reproduzir (Setup Local)
+
 Para garantir a reprodutibilidade do projeto e a correta versão das dependências, é **estritamente recomendado** o uso de um ambiente virtual.
 
 1. **Clone o repositório e entre na pasta:**
+
    ```bash
    git clone <seu-repo>
    cd <pasta-do-repo>
    ```
 
 2. **Crie o ambiente virtual:**
+
    ```bash
    python -m venv venv
    ```
@@ -39,11 +44,13 @@ Para garantir a reprodutibilidade do projeto e a correta versão das dependênci
    * **Linux/Mac:** `source venv/bin/activate`
 
 4. **Instale as dependências:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 5. **Execução da Aplicação (Streamlit):**
+
    ```bash
    # Comando disponível após o deploy da Etapa 4
    # streamlit run app.py
@@ -52,6 +59,7 @@ Para garantir a reprodutibilidade do projeto e a correta versão das dependênci
 ---
 
 ## 🏆 Resultados e Entregáveis
+
 * **Modelo Campeão:** Logistic Regression (`C=0.01`, `solver=lbfgs`, `class_weight='balanced'`)
 * **Métricas no Holdout (20%):**
 
@@ -67,6 +75,7 @@ Para garantir a reprodutibilidade do projeto e a correta versão das dependênci
 ---
 
 ## 📌 Histórico de Marcos (Milestones)
+
 * **[2026-04-12]** Infraestrutura de versionamento, logs autônomos e registro de trade-offs arquitetada com sucesso.
 * **[2026-04-14]** **Etapa 1 (EDA) concluída.** Varredura completa de qualidade de dados (zero anomalias além de 11 nulos semânticos em TotalCharges). Ranking de features por correlação e Cramér's V. Três decisões estruturais aprovadas: (1) imputação de TotalCharges com 0, (2) criação de `TicketMedio` e drop de `TotalCharges` para mitigar multicolinearidade, (3) `class_weight='balanced'` como estratégia de balanceamento.
 * **[2026-04-15 — AM]** **Etapa 2 (Pipeline de Features) concluída.** Função `preprocess_features` criada de maneira unificada e "production-ready" prevendo os requisitos do Streamlit. Variáveis multiclasse (Internet e Pagamento) resolvidas com One-Hot Encoding dropando bases. Categóricas binárias e ternárias convertidas manualmente preservando o sinal denso. Escalonamento deliberadamente adiado para evitar data leakage. Variável composta `NumServicos` gerada como Índice de Ancoragem preditivo. CSV exportado com 24 features numéricas.
